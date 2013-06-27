@@ -5,4 +5,4 @@
 //  Created by Art Gillespie on 5/14/11.
 //
 
-HEADER_SEARCH_PATHS = /usr/local/include/boost-1_35
+HEADER_SEARCH_PATHS = /Users/jyaunches/Projects/tools/boost_1_53_0
