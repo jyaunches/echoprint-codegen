@@ -32,12 +32,13 @@ class Fingerprint {
 public:
     uint quantized_time_for_frame_delta(uint frame_delta);
     uint quantized_time_for_frame_absolute(uint frame);
-    Fingerprint(SubbandAnalysis* pSubbandAnalysis, int offset);
+    Fingerprint(SubbandAnalysis* pSubbandAnalysis, int offset, int codeType);
     void Compute();
     uint adaptiveOnsets(int ttarg, matrix_u&out, uint*&onset_counter_for_band) ;
     std::vector<FPCode>& getCodes(){return _Codes;}
 protected:
     SubbandAnalysis *_pSubbandAnalysis;
+    int _CodeType;
     int _Offset;
     std::vector<FPCode> _Codes;
 };

@@ -22,7 +22,7 @@
 using std::string;
 using std::vector;
 
-Codegen::Codegen(const float* pcm, unsigned int numSamples, int start_offset) {
+Codegen::Codegen(const float* pcm, unsigned int numSamples, int start_offset, int codeType) {
     if (Params::AudioStreamInput::MaxSamples < (uint)numSamples)
         throw std::runtime_error("File was too big\n");
 
@@ -35,7 +35,7 @@ Codegen::Codegen(const float* pcm, unsigned int numSamples, int start_offset) {
     SubbandAnalysis *pSubbandAnalysis = new SubbandAnalysis(pAudio);
     pSubbandAnalysis->Compute();
 
-    Fingerprint *pFingerprint = new Fingerprint(pSubbandAnalysis, start_offset);
+    Fingerprint *pFingerprint = new Fingerprint(pSubbandAnalysis, start_offset, codeType);
     pFingerprint->Compute();
 
     _CodeString = createCodeString(pFingerprint->getCodes());

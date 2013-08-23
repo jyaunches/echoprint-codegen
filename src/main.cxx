@@ -28,6 +28,7 @@ typedef struct {
     char *error;
     char *filename;
     int start_offset;
+    int codeType;
     int duration;
     int tag;
     double t1;
@@ -41,6 +42,7 @@ typedef struct {
     char *filename;
     int start_offset;
     int duration;
+    int codeType;
     int tag;
     int done;
     codegen_response_t *response;
@@ -108,7 +110,7 @@ std::string escape(const string& value) {
     return out;
 }
 
-codegen_response_t *codegen_file(char* filename, int start_offset, int duration, int tag) {
+codegen_response_t *codegen_file(char* filename, int start_offset, int duration, int tag, int codeType) {
     // Given a filename, perform a codegen on it and get the response
     // This is called by a thread
     double t1 = now();
@@ -141,7 +143,7 @@ codegen_response_t *codegen_file(char* filename, int start_offset, int duration,
     t1 = now() - t1;
 
     double t2 = now();
-    Codegen *pCodegen = new Codegen(pAudio->getSamples(), numSamples, start_offset);
+    Codegen *pCodegen = new Codegen(pAudio->getSamples(), numSamples, start_offset, codeType);
     t2 = now() - t2;
     
     response->t1 = t1;
@@ -160,7 +162,7 @@ codegen_response_t *codegen_file(char* filename, int start_offset, int duration,
 void *threaded_codegen_file(void *parm) {
     // pthread stub to invoke json_string_for_file
     thread_parm_t *p = (thread_parm_t *)parm;
-    codegen_response_t *response = codegen_file(p->filename, p->start_offset, p->duration, p->tag);
+    codegen_response_t *response = codegen_file(p->filename, p->start_offset, p->duration, p->tag, p->codeType);
     p->response = response;
     // mark when we're done so the controlling thread can move on.
     p->done = 1;
@@ -219,7 +221,7 @@ char *make_json_string(codegen_response_t* response) {
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s [ filename | -s ] [seconds_start] [seconds_duration] [< file_list (if -s is set)]\n", argv[0]);
+        fprintf(stderr, "Usage: %s [ filename | -s ] [seconds_start] [seconds_duration] [< file_list (if -s is set)] [codegen_version (1 for EchoPrint or 2 for snapAsong)\n", argv[0]);
         exit(-1);
     }
 
@@ -227,12 +229,21 @@ int main(int argc, char** argv) {
         string files[MAX_FILES];
         char *filename = argv[1];
         int count = 0;
-        int start_offset = 0;
+        float start_offset = 0;
         int duration = 0;
         int already = 0;
-        if (argc > 2) start_offset = atoi(argv[2]);
+        int codeType = 1;
+        if (argc > 2) start_offset = atof(argv[2]);
         if (argc > 3) duration = atoi(argv[3]);
-        if (argc > 4) already = atoi(argv[4]);
+        if (argc > 4) {
+            codeType = atoi(argv[4]);
+            printf("codeType: %d\n", codeType);
+            if (codeType != 1 && codeType != 2) {
+                printf("enter 1 or 2 for codeType arg\n");
+                exit(-1);
+            }
+        }
+        if (argc > 5) already = atoi(argv[5]);
         // If you give it -s, it means to read in a list of files from stdin.
         if (strcmp(filename, "-s") == 0) {
             while(cin) {
@@ -253,7 +264,7 @@ int main(int argc, char** argv) {
 #ifdef _WIN32
         // Threading doesn't work in windows yet.
         for(int i=0;i<count;i++) {
-            codegen_response_t* response = codegen_file((char*)files[i].c_str(), start_offset, duration, i);
+            codegen_response_t* response = codegen_file((char*)files[i].c_str(), start_offset, duration, i, codeType);
             char *output = make_json_string(response);
             print_json_to_screen(output, count, i+1);
             if (response->codegen) {
@@ -284,6 +295,7 @@ int main(int argc, char** argv) {
             parm[i]->filename = (char*)files[still_left].c_str();
             parm[i]->start_offset = start_offset;
             parm[i]->tag = still_left;
+            parm[i]->codeType = codeType;
             parm[i]->duration = duration;
             parm[i]->done = 0;
             still_left--;

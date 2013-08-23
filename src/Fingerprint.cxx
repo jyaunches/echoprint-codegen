@@ -48,8 +48,8 @@ unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed ) {
     return h;
 }
 
-Fingerprint::Fingerprint(SubbandAnalysis* pSubbandAnalysis, int offset)
-    : _pSubbandAnalysis(pSubbandAnalysis), _Offset(offset) { }
+Fingerprint::Fingerprint(SubbandAnalysis* pSubbandAnalysis, int offset, int codeType)
+    : _pSubbandAnalysis(pSubbandAnalysis),_CodeType(codeType), _Offset(offset) { }
 
 
 uint Fingerprint::adaptiveOnsets(int ttarg, matrix_u&out, uint*&onset_counter_for_band) {
@@ -68,6 +68,7 @@ uint Fingerprint::adaptiveOnsets(int ttarg, matrix_u&out, uint*&onset_counter_fo
     int hop = 4;
     int nsm = 8;
     float ham[8];
+    //create hann window
     for(int i = 0 ; i != nsm ; i++)
         ham[i] = .5 - .5*cos( (2.*M_PI/(nsm-1))*i);
 
@@ -181,12 +182,20 @@ uint Fingerprint::quantized_time_for_frame_absolute(uint frame) {
 
 
 void Fingerprint::Compute() {
+    int ttarg;
     uint actual_codes = 0;
     unsigned char hash_material[5];
     for(uint i=0;i<5;i++) hash_material[i] = 0;
     uint * onset_counter_for_band;
     matrix_u out;
-    uint onset_count = adaptiveOnsets(100, out, onset_counter_for_band);
+    //ttarg orig 345
+    if (_CodeType==2){ 
+        ttarg=100;
+    }
+    else {
+        ttarg=345;
+    }
+    uint onset_count = adaptiveOnsets(ttarg, out, onset_counter_for_band);
     _Codes.resize(onset_count*6);
 
     for(unsigned char band=0;band<SUBBANDS;band++) {
