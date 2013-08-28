@@ -3,7 +3,6 @@
 //  Copyright 2011 The Echo Nest Corporation. All rights reserved.
 //
 
-
 #include "Fingerprint.h"
 #include "Params.h"
 #include <string.h>

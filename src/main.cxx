@@ -3,7 +3,6 @@
 //  Copyright 2011 The Echo Nest Corporation. All rights reserved.
 //
 
-
 #include <stdio.h>
 #include <string.h>
 #include <memory>
