@@ -77,8 +77,8 @@ CREATING_UNIVERSAL_DIR=${SYMROOT}/${CONFIGURATION}-universal
 echo "...I will output a universal build to: ${CREATING_UNIVERSAL_DIR}"
 # ... remove the products of previous runs of this script
 #      NB: this directory is ONLY created by this script - it should be safe to delete!
-#rm -rf "${CREATING_UNIVERSAL_DIR}"
-#mkdir "${CREATING_UNIVERSAL_DIR}"
+rm -rf "${CREATING_UNIVERSAL_DIR}"
+mkdir "${CREATING_UNIVERSAL_DIR}"
 #
 echo "lipo: for current configuration (${CONFIGURATION}) creating output file: ${CREATING_UNIVERSAL_DIR}/${EXECUTABLE_NAME}"
 lipo -create -output "${CREATING_UNIVERSAL_DIR}/${EXECUTABLE_NAME}" "${CURRENTCONFIG_DEVICE_DIR}/${EXECUTABLE_NAME}" "${CURRENTCONFIG_SIMULATOR_DIR}/${EXECUTABLE_NAME}"

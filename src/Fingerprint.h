@@ -4,6 +4,7 @@
 //
 
 
+
 #ifndef FINGERPRINT_H
 #define FINGERPRINT_H
 
@@ -31,14 +32,19 @@ class Fingerprint {
 public:
     uint quantized_time_for_frame_delta(uint frame_delta);
     uint quantized_time_for_frame_absolute(uint frame);
-    Fingerprint(SubbandAnalysis* pSubbandAnalysis, int offset, int codeType);
+    Fingerprint(SubbandAnalysis* pSubbandAnalysis, int offset, int numSamples, int codeType, bool inSession);
     void Compute();
-    uint adaptiveOnsets(int ttarg, matrix_u&out, uint*&onset_counter_for_band) ;
+    uint adaptiveOnsets(int ttarg, matrix_u&out, uint*&onset_counter_for_band, uint*&onset_counter_for_band_tot) ;
     std::vector<FPCode>& getCodes(){return _Codes;}
 protected:
     SubbandAnalysis *_pSubbandAnalysis;
+    bool _InSession;
     int _CodeType;
     int _Offset;
+    int _PrevFrames;
+    int _NumSamples;
+    int _PrevNumSamples;
+    int _PrevOffset;
     std::vector<FPCode> _Codes;
 };
 

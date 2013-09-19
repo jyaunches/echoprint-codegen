@@ -44,18 +44,24 @@ void SubbandAnalysis::Compute() {
     float Y[M_COLS];
 
     _NumFrames = (_NumSamples - C_LEN + 1)/SUBBANDS;
+  //  _NumFrames = (_NumSamples)/SUBBANDS;
+    //printf("FRAAAAAMES: %d", _NumFrames);
+    //printf("numframs: %d, numSamples: %d, _NumSamples - C_LEN + 1: %d\n", _NumFrames, _NumSamples, _NumSamples - C_LEN +1 );
     assert(_NumFrames > 0);
 
     _Data = matrix_f(SUBBANDS, _NumFrames);
 
+    int save;
     for (t = 0; t < _NumFrames; ++t) {
         for (i = 0; i < C_LEN; ++i) {
             Z[i] = _pSamples[ t*SUBBANDS + i] * SubbandFilterBank::C[i];
         }
+        save = t*SUBBANDS +1;
+
 
         for (i = 0; i < M_COLS; ++i) {
             Y[i] = Z[i];
-        }
+       }
         for (i = 0; i < M_COLS; ++i) {
             for (j = 1; j < M_ROWS; ++j) {
                 Y[i] += Z[i + M_COLS*j];
@@ -70,5 +76,8 @@ void SubbandAnalysis::Compute() {
             _Data(i,t) = Dr*Dr + Di*Di;
         }
     }
+    int nc =  floor((float)_NumFrames/4.)-(floor(8./4.)-1);
+    _NumSamples = nc*32;
+    //printf("last sample %d\n",save);
 }
 

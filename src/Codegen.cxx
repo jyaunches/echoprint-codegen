@@ -3,6 +3,7 @@
 //  Copyright 2011 The Echo Nest Corporation. All rights reserved.
 //
 
+
 #include <sstream>
 #include <iostream>
 #include <iomanip>
@@ -14,27 +15,30 @@
 #include "SubbandAnalysis.h"
 #include "Fingerprint.h"
 #include "Common.h"
-
+#include <stdio.h>
 #include "Base64.h"
 #include <zlib.h>
 
 using std::string;
 using std::vector;
 
-Codegen::Codegen(const float* pcm, unsigned int numSamples, int start_offset, int codeType) {
+Codegen::Codegen(const float* pcm, unsigned int numSamples, int start_offset, int codeType, bool inSession) {
     if (Params::AudioStreamInput::MaxSamples < (uint)numSamples)
         throw std::runtime_error("File was too big\n");
 
-    Whitening *pWhitening = new Whitening(pcm, numSamples);
+    Whitening *pWhitening = new Whitening(pcm, numSamples, inSession);
     pWhitening->Compute();
-
+    
     AudioBufferInput *pAudio = new AudioBufferInput();
     pAudio->SetBuffer(pWhitening->getWhitenedSamples(), pWhitening->getNumSamples());
 
     SubbandAnalysis *pSubbandAnalysis = new SubbandAnalysis(pAudio);
     pSubbandAnalysis->Compute();
+    numSamples = pSubbandAnalysis->getNumSamples();
+    pAudio->setNumSamples(numSamples);
+    _NumSamples = numSamples;
 
-    Fingerprint *pFingerprint = new Fingerprint(pSubbandAnalysis, start_offset, codeType);
+    Fingerprint *pFingerprint = new Fingerprint(pSubbandAnalysis, start_offset, numSamples, codeType, inSession);
     pFingerprint->Compute();
 
     _CodeString = createCodeString(pFingerprint->getCodes());

@@ -47,6 +47,7 @@ public:
     void Compute();
 public:
     inline uint getNumFrames() const {return _NumFrames;}
+    inline uint getNumSamples() const {return _NumSamples;}
     inline uint getNumBands() const {return SUBBANDS;}
     const matrix_f& getMatrix() {return _Data;}
 

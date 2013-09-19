@@ -9,12 +9,12 @@ CXX=g++
 CC=gcc
 #OPTFLAGS=-g -O0
 OPTFLAGS=-O3 -DBOOST_UBLAS_NDEBUG -DNDEBUG
-BOOST_CFLAGS=-I/usr/local/include/boost-1_35
+BOOST_CFLAGS=-I/usr/local/include/boost_1_54_0
 TAGLIB_CFLAGS=`taglib-config --cflags`
 TAGLIB_LIBS=`taglib-config --libs`
 CXXFLAGS=-Wall $(BOOST_CFLAGS) $(TAGLIB_CFLAGS) -fPIC $(OPTFLAGS)
 CFLAGS=-Wall -fPIC $(OPTFLAGS)
-LDFLAGS=$(TAGLIB_LIBS) -lz -lpthread $(OPTFLAGS)
+LDFLAGS=$(TAGLIB_LIBS) -lsndfile -lz -lpthread $(OPTFLAGS)
 LIBNAME=libcodegen.so
 SONAME=$(LIBNAME).$(VERSION_MAJ)
 

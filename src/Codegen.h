@@ -3,6 +3,7 @@
 //  Copyright 2011 The Echo Nest Corporation. All rights reserved.
 //
 
+
 #ifndef CODEGEN_H
 #define CODEGEN_H
 
@@ -30,10 +31,11 @@ struct FPCode;
 
 class CODEGEN_API Codegen {
 public:
-    Codegen(const float* pcm, unsigned int numSamples, int start_offset, int codeType);
+    Codegen(const float* pcm, unsigned int numSamples, int start_offset, int codeType, bool inSession);
 
     std::string getCodeString(){return _CodeString;}
     int getNumCodes(){return _NumCodes;}
+    int getNumSamples(){return _NumSamples;}
     static double getVersion() { return ECHOPRINT_VERSION; }
 private:
     Fingerprint* computeFingerprint(SubbandAnalysis *pSubbandAnalysis, int start_offset);
@@ -42,6 +44,7 @@ private:
     std::string compress(const std::string& s);
     std::string _CodeString;
     int _NumCodes;
+    int _NumSamples;
 };
 
 #endif

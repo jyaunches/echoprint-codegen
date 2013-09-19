@@ -12,6 +12,7 @@
 #include <string>
 #include <math.h>
 #include "File.h"
+#include <time.h>
 #if defined(_WIN32) && !defined(__MINGW32__)
 #define snprintf _snprintf
 #define DEVNULL "nul"
@@ -24,12 +25,14 @@ public:
     AudioStreamInput();
     virtual ~AudioStreamInput();
     virtual bool ProcessFile(const char* filename, int offset_s=0, int seconds=0);
+    virtual bool ProcessFile_alt(const char* filename, int offset_samples=0, int dur_samples=0); 
     virtual std::string GetName() = 0;
     bool ProcessRawFile(const char* rawFilename);
     bool ProcessStandardInput(void);
     bool ProcessFilePointer(FILE* pFile);
     int getNumSamples() const {return _NumberSamples;}
     const float* getSamples() {return _pSamples;}
+    void setNumSamples(int numSamples) {_NumberSamples = numSamples;}
     double getDuration() { return (double)getNumSamples() / Params::AudioStreamInput::SamplingRate; }
     virtual bool IsSupported(const char* pFileName); //Everything ffmpeg can do, by default
     int GetOffset() const { return _Offset_s;}
@@ -41,7 +44,10 @@ protected:
     float* _pSamples;
     uint _NumberSamples;
     int _Offset_s;
+    int _Offset_samples;
     int _Seconds;
+    int _Dur_samples;
+    char _TempFilename[256];
 
 };
 
@@ -61,13 +67,30 @@ protected:
     std::string GetCommandLine(const char* filename) {
         // TODO: Windows
         char message[4096] = {0};
-        if (_Offset_s == 0 && _Seconds == 0)
-            snprintf(message, NELEM(message), "ffmpeg -i \"%s\"  -ac %d -ar %d -f s16le - 2>%s",
-                    filename, Params::AudioStreamInput::Channels, (uint) Params::AudioStreamInput::SamplingRate, DEVNULL);
-        else
-            snprintf(message, NELEM(message), "ffmpeg -i \"%s\"  -ac %d -ar %d -f s16le -t %d -ss %d - 2>%s",
-                    filename, Params::AudioStreamInput::Channels, (uint) Params::AudioStreamInput::SamplingRate, _Seconds, _Offset_s, DEVNULL);
+        time_t rawtime;
+        struct tm * timeinfo;
+        char tmpFile [80];
+                   
+        time ( &rawtime );
+        timeinfo = localtime ( &rawtime );
+        
+        strftime (tmpFile,80,"tmp-%b%d%S_kl_%H%M.wav",timeinfo);
+        getcwd(_TempFilename, 255);
+        strcat(_TempFilename, "/");
+        
+        strcat(_TempFilename, tmpFile);
+       // _TempFilename= tmpFile;
+        
+                             
+        //puts (tmpFile);
 
+        if (_Offset_s == 0 && _Seconds == 0)
+            snprintf(message, NELEM(message), "sox \"%s\"  -c %d -r %d -b 16 -t wav %s 2>/dev/null ",
+                    filename, Params::AudioStreamInput::Channels, (uint) Params::AudioStreamInput::SamplingRate, _TempFilename);
+        else
+            snprintf(message, NELEM(message), "sox \"%s\"  -c %d -r %d  -b 16 -t wav %s 2>/dev/null",
+                    filename, Params::AudioStreamInput::Channels, (uint) Params::AudioStreamInput::SamplingRate, _TempFilename);
+        
         return std::string(message);
     }
 };

@@ -19,10 +19,14 @@
 #define POPEN_MODE "rb"
 #endif
 #include <string.h>
+#include <sndfile.h>
 
 #include "AudioStreamInput.h"
 #include "Common.h"
 #include "Params.h"
+#include <time.h>
+#include <unistd.h>
+#define GetCurrentDir getcwd
 
 using std::string;
 
@@ -48,6 +52,61 @@ AudioStreamInput::AudioStreamInput() : _pSamples(NULL), _NumberSamples(0), _Offs
 AudioStreamInput::~AudioStreamInput() {
     if (_pSamples != NULL)
         delete [] _pSamples, _pSamples = NULL;
+}
+
+
+bool AudioStreamInput::ProcessFile_alt(const char* filename, int offset_samples, int dur_samples/*=0*/) {
+    if (!File::Exists(filename) || !IsSupported(filename))
+        return false;
+
+    _Offset_samples = offset_samples;
+    _Dur_samples = dur_samples;
+    
+    std::string message = GetCommandLine(filename);
+
+    popen(message.c_str(), POPEN_MODE);
+    
+    SF_INFO soundfileInfo;
+    SNDFILE *fp;
+
+    //printf("new filename: %s\n", _TempFilename);
+    /*
+    char the_path[256];
+    getcwd(the_path, 255);
+    strcat(the_path, "/");
+    strcat(the_path, _TempFilename);
+    */
+
+    sleep(1);
+    if ((fp = sf_open (_TempFilename, SFM_READ, &soundfileInfo)) == NULL) {
+        printf ("Error: could not open file: -%s-\n", _TempFilename) ;
+        puts(sf_strerror (NULL)) ;
+        exit(1);
+    }
+    sf_seek(fp, offset_samples, SEEK_SET);
+    _NumberSamples = dur_samples;
+    _pSamples = new float[_NumberSamples];
+    
+    uint readcount;
+    readcount = sf_readf_float( fp, _pSamples, _NumberSamples);  
+//    printf("read: %d, requsted: %d\n", readcount, _NumberSamples);
+
+    sf_close(fp);
+    bool ok = (readcount == _NumberSamples);
+    //delete temp wav file 
+    int status;
+    status = remove(_TempFilename);
+    
+    
+    if( status != 0 )
+        fprintf(stderr,"Unable to delete the file\n");
+        //printf("%s file deleted successfully.\n", the_path);
+    if(!ok) {
+        _NumberSamples = readcount;
+        fprintf(stderr, "File not long enough for requested samples.\n");
+    }
+  //  printf("%s\n", the_path);
+    return 1;
 }
 
 
