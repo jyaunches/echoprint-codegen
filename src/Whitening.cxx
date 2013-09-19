@@ -22,6 +22,7 @@ Whitening::Whitening(const float* pSamples, uint numSamples, bool inSession) :
 Whitening::~Whitening() {
     free(_R);
     free(_Xo);
+    free(_Save_Xo);
     free(_ai);
     free(_whitened);
 }
@@ -35,8 +36,10 @@ void Whitening::Init() {
     _R[0] = 0.001;
 
     _Xo = (float *)malloc((_p+1)*sizeof(float));
-    _Save_Xo = (float *)malloc((_p+1)*sizeof(float));
     for (i = 0; i < _p; ++i)  { _Xo[i] = 0.0; }
+
+    _Save_Xo = (float *)malloc((_p+1)*sizeof(float));
+    for (i = 0; i < _p; ++i)  { _Save_Xo[i] = 0.0; }
 
     _ai = (float *)malloc((_p+1)*sizeof(float));
     _whitened = (float*) malloc(sizeof(float)*_NumSamples);
@@ -49,14 +52,13 @@ void Whitening::Compute() {
     bool last=0;
     int numFrames = (_NumSamples - 128 + 1)/8;
     int nc =  floor((float)numFrames/4.)-(floor(8./4.)-1);
-    int _NewNumSamples = nc*32;
-    printf("new: %d, old: %d\n", _NewNumSamples, _NumSamples);
+    _NewNumSamples = nc*32;
 
     for(i=0;i<(int)_NumSamples;i=i+blocklen) {
         if (i==0) first = 1;
         else first = 0;
         if (i+blocklen >= (int)_NewNumSamples) {last = 1;}
-        if (i >= (int)_NewNumSamples && i < _NumSamples) {last = 0;}
+        if (i >= (int)_NewNumSamples && i <(int) _NumSamples) {last = 0;}
         if (i+blocklen >= (int)_NumSamples) {
             newblocklen = _NumSamples -i - 1;
         } else { newblocklen = blocklen; }
@@ -131,14 +133,12 @@ void Whitening::ComputeBlock(int start, int blockSize, bool first, bool last) {
     // save last few frames of input
     for (i = 0; i <= _p; ++i) {
         _Xo[i] = _pSamples[blockSize-1-_p+i+start];
+       if (last) {
+           _Save_Xo[i] = _pSamples[_NewNumSamples-1-_p+i];
+       } 
     }
 
     if (last) {
-        for (i = 0; i <= _p; ++i) {
-            printf("%d\n", i);
-            _Save_Xo[i] = _pSamples[_NewNumSamples-1-_p+i];
-        }
-
         FILE *outF = fopen("white.tmp","w"); 
         for (i = 0; i <= _p; ++i) {
             fprintf(outF, "%f ",_Save_Xo[i]);
