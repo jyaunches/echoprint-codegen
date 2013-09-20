@@ -25,7 +25,7 @@ public:
     AudioStreamInput();
     virtual ~AudioStreamInput();
     virtual bool ProcessFile(const char* filename, int offset_s=0, int seconds=0);
-    virtual bool ProcessFile_alt(const char* filename, int offset_samples=0, int dur_samples=0); 
+    //virtual bool ProcessFile_alt(const char* filename, int offset_samples=0, int dur_samples=0);
     virtual std::string GetName() = 0;
     bool ProcessRawFile(const char* rawFilename);
     bool ProcessStandardInput(void);

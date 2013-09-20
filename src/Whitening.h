@@ -17,7 +17,7 @@ class Whitening {
 public:
     inline Whitening() {};
     Whitening(AudioStreamInput* pAudio);
-    Whitening(const float* pSamples, uint numSamples, bool inSession);
+    Whitening(const float* pSamples, uint numSamples, bool inSession, char *path);
     virtual ~Whitening();
     void Compute();
     void ComputeBlock(int start, int blockSize, bool first, bool last);
@@ -32,6 +32,7 @@ protected:
     uint _NumSamples;
     uint _NewNumSamples;
     bool _InSession;
+    char *_Path;
     float* _R;
     float *_Xo;
     float *_Save_Xo;

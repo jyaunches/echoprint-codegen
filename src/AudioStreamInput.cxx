@@ -19,7 +19,7 @@
 #define POPEN_MODE "rb"
 #endif
 #include <string.h>
-#include <sndfile.h>
+//#include <sndfile.h>
 
 #include "AudioStreamInput.h"
 #include "Common.h"
@@ -54,8 +54,8 @@ AudioStreamInput::~AudioStreamInput() {
         delete [] _pSamples, _pSamples = NULL;
 }
 
-
-bool AudioStreamInput::ProcessFile_alt(const char* filename, int offset_samples, int dur_samples/*=0*/) {
+/*
+bool AudioStreamInput::ProcessFile_alt(const char* filename, int offset_samples, int dur_samples) {
     if (!File::Exists(filename) || !IsSupported(filename))
         return false;
 
@@ -66,16 +66,16 @@ bool AudioStreamInput::ProcessFile_alt(const char* filename, int offset_samples,
 
     popen(message.c_str(), POPEN_MODE);
     
-    SF_INFO soundfileInfo;
-    SNDFILE *fp;
+ //   SF_INFO soundfileInfo;
+ //   SNDFILE *fp;
 
     //printf("new filename: %s\n", _TempFilename);
-    /*
+  //  /
     char the_path[256];
     getcwd(the_path, 255);
     strcat(the_path, "/");
     strcat(the_path, _TempFilename);
-    */
+    ///
 
     sleep(1);
     if ((fp = sf_open (_TempFilename, SFM_READ, &soundfileInfo)) == NULL) {
@@ -108,7 +108,7 @@ bool AudioStreamInput::ProcessFile_alt(const char* filename, int offset_samples,
   //  printf("%s\n", the_path);
     return 1;
 }
-
+*/
 
 bool AudioStreamInput::ProcessFile(const char* filename, int offset_s/*=0*/, int seconds/*=0*/) {
     if (!File::Exists(filename) || !IsSupported(filename))

@@ -49,8 +49,8 @@ unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed ) {
     return h;
 }
 
-Fingerprint::Fingerprint(SubbandAnalysis* pSubbandAnalysis, int offset, int numSamples, int codeType, bool inSession)
-    : _pSubbandAnalysis(pSubbandAnalysis),_InSession(inSession), _CodeType(codeType), _Offset(offset),_NumSamples(numSamples) {_PrevNumSamples = 0; }
+Fingerprint::Fingerprint(SubbandAnalysis* pSubbandAnalysis, int offset, int numSamples, int codeType, bool inSession, char*path)
+    : _pSubbandAnalysis(pSubbandAnalysis),_Path(path),_InSession(inSession), _CodeType(codeType), _Offset(offset),_NumSamples(numSamples) {_PrevNumSamples = 0; }
 
 
 uint Fingerprint::adaptiveOnsets(int ttarg, matrix_u&out, uint*&onset_counter_for_band, uint*&onset_counter_for_band_tot) {
@@ -63,6 +63,7 @@ uint Fingerprint::adaptiveOnsets(int ttarg, matrix_u&out, uint*&onset_counter_fo
     double overfact = 1.1;  /* threshold rel. to actual peak */
     uint onset_counter = 0;
     uint onset_counter_tot = 0;
+    char path[128];
 
     matrix_f E = _pSubbandAnalysis->getMatrix();
 
@@ -97,7 +98,9 @@ uint Fingerprint::adaptiveOnsets(int ttarg, matrix_u&out, uint*&onset_counter_fo
     _PrevNumSamples = 0;
 //    printf("Frames: %d, samples: %d\n", frames, _NumSamples);
     if (_InSession) {
-        FILE *outF = fopen("outMat.tmp","r");
+        strcpy(path, _Path);
+        strcat(path, "outMat.tmp");
+        FILE *outF = fopen(path,"r");
         if (outF == NULL){
             printf("error reading from memory temp file. Initializing to 1.\n");
         }
@@ -142,7 +145,9 @@ uint Fingerprint::adaptiveOnsets(int ttarg, matrix_u&out, uint*&onset_counter_fo
     }
     
     if (_InSession) {
-        FILE *f = fopen("mem.tmp", "r");
+        strcpy(path, _Path);
+        strcat(path, "mem.tmp");
+        FILE *f = fopen(path, "r");
         if (f == NULL){
             printf("error reading from memory temp file. Initializing to 1.\n");
         }
@@ -244,7 +249,12 @@ uint Fingerprint::adaptiveOnsets(int ttarg, matrix_u&out, uint*&onset_counter_fo
     
     
     //save taus for next round
-    FILE *fout = fopen("mem.tmp", "w");
+
+    strcpy(path, _Path);
+    strcat(path, "mem.tmp");
+    fprintf(stderr, "%s\n", path);
+        fprintf(stderr, "Base path: %s\n", _Path);
+    FILE *fout = fopen(path, "w");
     if (fout==NULL){
         printf("Error opening temp file for memory.\n");
         exit(1);
@@ -269,7 +279,10 @@ uint Fingerprint::adaptiveOnsets(int ttarg, matrix_u&out, uint*&onset_counter_fo
     //printf("%d\n", onset_counter_tot);
 
     //save out matrix for next round
-    FILE *outOutF = fopen("outMat.tmp","w");
+    strcpy(path, _Path);
+    strcat(path, "outMat.tmp");
+        fprintf(stderr, "%s\n", path);
+    FILE *outOutF = fopen(path,"w");
     if (outOutF == NULL){
         printf("error reading from memory temp file. Initializing to 1\n");
     }

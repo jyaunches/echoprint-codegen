@@ -7,6 +7,7 @@
 #include "Whitening.h"
 #include "AudioStreamInput.h"
 #include <stdio.h>
+#include <string.h>
 
 Whitening::Whitening(AudioStreamInput* pAudio) {
     _pSamples = pAudio->getSamples();
@@ -14,8 +15,8 @@ Whitening::Whitening(AudioStreamInput* pAudio) {
     Init();
 }
 
-Whitening::Whitening(const float* pSamples, uint numSamples, bool inSession) :
-    _pSamples(pSamples), _NumSamples(numSamples), _InSession(inSession) {
+Whitening::Whitening(const float* pSamples, uint numSamples, bool inSession, char *path) :
+    _pSamples(pSamples), _NumSamples(numSamples), _InSession(inSession), _Path(path) {
     Init();
 }
 
@@ -71,10 +72,14 @@ void Whitening::ComputeBlock(int start, int blockSize, bool first, bool last) {
     float alpha, E, ki;
     float T = 8;
     alpha = 1.0/T;
+    char path[128];
+    strcpy(path, _Path);
+    strcat(path,"white.tmp" );
+        fprintf(stderr, "%s\n", path);
 
     //retrieve last few frames of input from last session
     if (_InSession && first) {
-        FILE *f = fopen("white.tmp","r");
+                FILE *f = fopen(_Path ,"r");
         if (f == NULL){
             printf("error reading from memory temp file.\n");
         }
@@ -139,7 +144,7 @@ void Whitening::ComputeBlock(int start, int blockSize, bool first, bool last) {
     }
 
     if (last) {
-        FILE *outF = fopen("white.tmp","w"); 
+        FILE *outF = fopen(_Path,"w");
         for (i = 0; i <= _p; ++i) {
             fprintf(outF, "%f ",_Save_Xo[i]);
             fprintf(outF, "%f ",_ai[i]);
