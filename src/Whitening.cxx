@@ -79,7 +79,7 @@ void Whitening::ComputeBlock(int start, int blockSize, bool first, bool last) {
 
     //retrieve last few frames of input from last session
     if (_InSession && first) {
-                FILE *f = fopen(_Path ,"r");
+                FILE *f = fopen(path ,"r");
         if (f == NULL){
             printf("error reading from memory temp file.\n");
         }
@@ -144,7 +144,7 @@ void Whitening::ComputeBlock(int start, int blockSize, bool first, bool last) {
     }
 
     if (last) {
-        FILE *outF = fopen(_Path,"w");
+        FILE *outF = fopen(path,"w");
         for (i = 0; i <= _p; ++i) {
             fprintf(outF, "%f ",_Save_Xo[i]);
             fprintf(outF, "%f ",_ai[i]);
