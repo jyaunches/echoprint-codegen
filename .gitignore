@@ -1,3 +1,12 @@
 *.o
 *.dylib
 *.so
+
+.DS_Store
+
+# Ignore rubymine files
+/.idea/
+/.idea/vcs.xml
+.idea
+.idea/
+.idea/workspace.xml
