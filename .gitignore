@@ -26,3 +26,26 @@ tmp-Sep1801_kl_0333.wav tmp-Sep1803_kl_1850.wav tmp-Sep1830_kl_1157.wav tmp-Sep1
 /.DS_Store/
 .DS_Store
 *.swp
+
+# Ignore rubymine files
+/.idea/
+/.idea/vcs.xml
+.idea
+.idea/
+.idea/workspace.xml
+
+
+#Config files
+echoprint-codegen-ios.xcconfig
+
+#Build files
+/echoprint-codegen-ios.build/
+*/echoprint-codegen-ios.build/
+echoprint-codegen-ios.build/
+/echoprint-codegen-ios.build
+
+
+/xuserdata/
+*/xuserdata/
+/xuserdata/*
+/xuserdata
