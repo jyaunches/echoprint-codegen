@@ -146,7 +146,8 @@ codegen_response_t *codegen_file(char* filename, int start_offset, int duration,
     t1 = now() - t1;
 
     double t2 = now();
-    Codegen *pCodegen = new Codegen(pAudio->getSamples(), numSamples, start_offset, codeType, inSession);
+    char path[3]= "./"
+    Codegen *pCodegen = new Codegen(pAudio->getSamples(), numSamples, start_offset, codeType, inSession, &path);
     t2 = now() - t2;
     
     numSamples = pCodegen->getNumSamples();

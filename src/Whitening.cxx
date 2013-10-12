@@ -75,7 +75,7 @@ void Whitening::ComputeBlock(int start, int blockSize, bool first, bool last) {
     char path[128];
     strcpy(path, _Path);
     strcat(path,"white.tmp" );
-        fprintf(stderr, "%s\n", path);
+   //     fprintf(stderr, "%s\n", path);
 
     //retrieve last few frames of input from last session
     if (_InSession && first) {
@@ -93,6 +93,7 @@ void Whitening::ComputeBlock(int start, int blockSize, bool first, bool last) {
 
     // calculate autocorrelation of current block
     for (i = 0; i <= _p; ++i) {
+        
         float acc = 0;
         for (j = i; j < (int)blockSize; ++j) {
             acc += _pSamples[j+start] * _pSamples[j-i+start];
@@ -145,6 +146,7 @@ void Whitening::ComputeBlock(int start, int blockSize, bool first, bool last) {
 
     if (last) {
         FILE *outF = fopen(path,"w");
+        fprintf(stderr, "whitening path: %s\n", path);
         for (i = 0; i <= _p; ++i) {
             fprintf(outF, "%f ",_Save_Xo[i]);
             fprintf(outF, "%f ",_ai[i]);

@@ -18,6 +18,8 @@
 #include <stdio.h>
 #include "Base64.h"
 #include <zlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 using std::string;
 using std::vector;
@@ -25,7 +27,18 @@ using std::vector;
 Codegen::Codegen(const float* pcm, unsigned int numSamples, int start_offset, int codeType, bool inSession, char* path) {
     if (Params::AudioStreamInput::MaxSamples < (uint)numSamples)
         throw std::runtime_error("File was too big\n");
-    //fprintf(stderr, "TESTIGTESTINGTESTING\n\n\n");
+//    fprintf(stderr, "TESTIGTESTINGTESTING\n\n\n");
+    if (codeType==1) {
+        strcat(path, "ECHO/");
+    }
+    else {
+        strcat(path, "SNAP/");
+    }
+    
+    mode_t process_mask = umask(0);
+    mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO);
+    umask(process_mask);
+    
     Whitening *pWhitening = new Whitening(pcm, numSamples, inSession, path);
     pWhitening->Compute();
     
@@ -63,6 +76,7 @@ string Codegen::createCodeString(vector<FPCode> vCodes) {
         int hash = vCodes[i].code;
         codestream << std::setw(5) << hash;
     }
+    //fprintf(stderr, "\n\n printing code: \n%s\n \n ", codestream.str().c_str() );
     return compress(codestream.str());
 }
 
